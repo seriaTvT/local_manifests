@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  chopin (POCO X3 GT / Redmi Note 10 Pro) + ares (Redmi K40 Gaming) MT6893
+  LineageOS 23.2 local manifest. Documents every repo added on top of the
+  stock lineage-23.2 manifest (`repo init -u https://github.com/LineageOS/android.git
+  -b lineage-23.2 --git-lfs`).
+
+  Usage:
+    mkdir -p .repo/local_manifests
+    git clone https://github.com/seriaTvT/local_manifests -b lineage-23.2 .repo/local_manifests
+    repo sync -c -j"$(nproc)" --no-clone-bundle --no-tags
+
+  All projects below are pushed to their tracked remote/branch; a sync of this
+  manifest reproduces the built-and-tested tree. Rationale for every pin is in
+  REPRODUCE.md / PORT-LOG.md in the LOS-dev project tree.
+-->
+<manifest>
+  <remote name="seriatvt" fetch="https://github.com/seriaTvT" />
+  <remote name="mt6893-dev" fetch="https://github.com/xiaomi-mt6893-dev" />
+  <remote name="mt6899-dev" fetch="https://github.com/xiaomi-mt6899-dev" />
+  <remote name="los-gh" fetch="https://github.com/LineageOS" />
+  <remote name="gitlab" fetch="https://gitlab.com" />
+
+  <!-- device trees (both devices; mt6893-common is shared) -->
+  <project path="device/xiaomi/chopin" name="device_xiaomi_chopin" remote="seriatvt" revision="lineage-23.2" />
+  <project path="device/xiaomi/ares" name="device_xiaomi_ares" remote="seriatvt" revision="lineage-23.2" />
+  <project path="device/xiaomi/mt6893-common" name="device_xiaomi_mt6893-common" remote="seriatvt" revision="lineage-23.2" />
+
+  <!-- kernel: chopin_kvm (= msdc1 disable c82cf72 + XM_THERM cpu_limits fix
+       3b2c21ee). OC branches retired 2026-07-06: MCUPM firmware is fuse-gated
+       at 2600MHz on the B cluster, table OC parks the PLL on a ~2GHz backup
+       mux (see PORT-LOG); chopin_kvm_oc / chopin_kvm_oc30 kept for reference
+       only. (KSU is not in this branch.)
+       SHARED with ares since 7d6d2728 (2026-07-11: ares_defconfig adds
+       BBR2-as-default + LRU_GEN + zstd/lz4hc) - one branch serves both
+       devices, TARGET_KERNEL_CONFIG picks the defconfig. -->
+  <project path="kernel/xiaomi/mt6893" name="kernel_mt6893" remote="seriatvt" revision="chopin_kvm" />
+
+  <!-- vendor blobs (mt6893-common shared; per-device chopin/ares carry the deltas) -->
+  <project path="vendor/xiaomi/chopin" name="vendor_xiaomi_chopin" remote="seriatvt" revision="16.0" />
+  <project path="vendor/xiaomi/mt6893-common" name="vendor_xiaomi_mt6893-common" remote="seriatvt" revision="lineage-22.2" />
+  <!-- ares vendor: the seriaTvT lineage-23.2 branch (563/564 blobs + 17/17
+       firmware vs the 23.2 spec) adds the audio HAL fixup re-patch +
+       thermald-devices.conf on top of lineage-22.2 (see PORT-LOG 2026-07-12).
+       NOT wired: xiaomi-mt6893-dev/android_vendor_xiaomi_ares - that is the
+       retired LOS 20/21-era vendor repo, superseded by this one. -->
+  <project path="vendor/xiaomi/ares" name="vendor_xiaomi_ares" remote="seriatvt" revision="lineage-23.2" />
+
+  <!-- community hardware repos: lineage-23.0 is their latest; carry mt6893-only
+       patches (MTK BT/WiFi HALs, MITEE FPC), do not swap for LineageOS upstream.
+       hardware/xiaomi tracks the seriaTvT fork (= mt6893-dev + megvii-to-compat
+       fix 948c66e, needed to coexist with hardware/lineage/compat on 23.2) -->
+  <project path="hardware/mediatek" name="hardware_mediatek" remote="mt6893-dev" revision="lineage-23.0" />
+  <project path="hardware/xiaomi" name="hardware_xiaomi" remote="seriatvt" revision="lineage-23.0" />
+
+  <!-- platform dependencies not in the default manifest -->
+  <project path="device/mediatek/sepolicy_vndr" name="android_device_mediatek_sepolicy_vndr" remote="los-gh" revision="lineage-23.2" />
+  <project path="vendor/mediatek/ims" name="android_vendor_mediatek_ims" remote="mt6899-dev" revision="lineage-23.2" />
+
+  <!-- GApps baked into the ROM (replaces sideload: user-build recovery hides
+       the unverified-install path and Virtual A/B drops recovery sideload
+       writes to /product). baklava = Android 16. Inherited from
+       lineage_chopin.mk (arm64/arm64-vendor.mk). -->
+  <project path="vendor/gapps" name="MindTheGapps/vendor_gapps" remote="gitlab" revision="baklava" />
+
+  <!-- forked base platform repo: replace the stock LineageOS frameworks/av with
+       the seriaTvT fork (2 MT6893 patches: codec2 decode-freeze revert + Y16
+       camera roundBufferDimensionNearest bypass — see REPRODUCE.md §3.4).
+       remove-project is REQUIRED so the base manifest's copy doesn't win. -->
+  <remove-project name="LineageOS/android_frameworks_av" />
+  <project path="frameworks/av" name="android_frameworks_av" remote="seriatvt" revision="lineage-23.2" />
+</manifest>
