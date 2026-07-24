@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   chopin (POCO X3 GT / Redmi Note 10 Pro) + ares (Redmi K40 Gaming) MT6893
-  LineageOS 23.2 local manifest. Documents every repo added on top of the
-  stock lineage-23.2 manifest (`repo init -u https://github.com/LineageOS/android.git
-  -b lineage-23.2 --git-lfs`).
+  LineageOS 23.2 local manifest. Lists every project added on top of the
+  stock lineage-23.2 manifest.
 
-  Usage:
-    mkdir -p .repo/local_manifests
-    git clone https://github.com/seriaTvT/local_manifests -b lineage-23.2 .repo/local_manifests
-    repo sync -c -j"$(nproc)" --no-clone-bundle --no-tags
+  Clone this repo into .repo/local_manifests/ of a LineageOS lineage-23.2
+  checkout, repo sync, then run patches/apply-patches.sh before building.
+  The full pull-and-build procedure (exact repo init, sync and lunch
+  commands) is in README.md; per-project rationale is in PORT-LOG.md.
 
-  All projects below are pushed to their tracked remote/branch; a sync of this
-  manifest reproduces the built-and-tested tree. Rationale for every pin is in
-  REPRODUCE.md / PORT-LOG.md in the LOS-dev project tree.
+  All projects below are pushed to their tracked remote/branch, so a fresh
+  sync reproduces the built-and-tested tree.
 -->
 <manifest>
   <remote name="seriatvt" fetch="https://github.com/seriaTvT" />
@@ -45,6 +43,11 @@
        NOT wired: xiaomi-mt6893-dev/android_vendor_xiaomi_ares - that is the
        retired LOS 20/21-era vendor repo, superseded by this one. -->
   <project path="vendor/xiaomi/ares" name="vendor_xiaomi_ares" remote="seriatvt" revision="lineage-23.2" />
+
+  <!-- AresParts (org.lineageos.settings.ares): triggers + RGB LED + vibration
+       strength, ares-only via device/xiaomi/ares device.mk (chopin lacks the
+       HW). Replaced the legacy XiaomiParts (Parts-ares fork) at M5. -->
+  <project path="packages/apps/AresParts" name="android_packages_apps_AresParts" remote="seriatvt" revision="lineage-23.2" />
 
   <!-- community hardware repos: lineage-23.0 is their latest; carry mt6893-only
        patches (MTK BT/WiFi HALs, MITEE FPC), do not swap for LineageOS upstream.
