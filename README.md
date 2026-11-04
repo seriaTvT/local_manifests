@@ -81,3 +81,10 @@ No new platform forks are required. Small upstream/platform/tool patches live in
 [android_patches](https://github.com/seriaTvT/android_patches/tree/lineage-24.0),
 including hardware/mediatek's small namespace change. The existing
 `seriaTvT/android_frameworks_av` fork is not required by this snapshot.
+
+The kernel also includes the ReSukiSU manual-hook update from `c651f31ec9ab`,
+merged with the LOS24 sync-core fix. KSU remains disabled by default. A rooted
+build still requires the matching ReSukiSU driver and configuration; compiling
+the hook code alone does not validate a complete rooted kernel. The in-progress
+2026-11-04 n10p release uses the earlier kernel `0f7261a9a61b`; this hook-only
+update does not change its non-root code path.

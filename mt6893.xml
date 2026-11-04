@@ -8,7 +8,7 @@
   <project path="device/xiaomi/chopin" name="device_xiaomi_chopin" remote="seriatvt" revision="81e876a97647623661f6d0ed5aab6256cb54789b" upstream="refs/heads/lineage-23.2" />
   <project path="device/xiaomi/ares" name="device_xiaomi_ares" remote="seriatvt" revision="ceac8a5ff8006af6dd6f1cc2a03acbe1e9f10e23" upstream="refs/heads/lineage-23.2" />
   <project path="device/xiaomi/mt6893-common" name="device_xiaomi_mt6893-common" remote="seriatvt" revision="6b20488c2090c92b6198630798f1d8cb550b6ba2" upstream="refs/heads/lineage-24.0" />
-  <project path="kernel/xiaomi/mt6893" name="kernel_mt6893" remote="seriatvt" revision="0f7261a9a61bb7b27d46730589c61096bd3ea1c7" upstream="refs/heads/lineage-24.0" />
+  <project path="kernel/xiaomi/mt6893" name="kernel_mt6893" remote="seriatvt" revision="c955c3b37aaa8cbfe5487a75be63d1805d4a3b1b" upstream="refs/heads/lineage-24.0" />
   <project path="vendor/xiaomi/chopin" name="vendor_xiaomi_chopin" remote="seriatvt" revision="ea095bec0c3f0ce4ae734663d22c24946c6283ed" upstream="refs/heads/16.0" />
   <project path="vendor/xiaomi/mt6893-common" name="vendor_xiaomi_mt6893-common" remote="seriatvt" revision="fe0d6b1cd0b737eb1a604f503173ed5265b1f6ac" upstream="refs/heads/lineage-24.0" />
   <project path="vendor/xiaomi/ares" name="vendor_xiaomi_ares" remote="seriatvt" revision="c872b56be5df5a9144543ec1a7d8c1e05b0ccd47" upstream="refs/heads/lineage-23.2" />
