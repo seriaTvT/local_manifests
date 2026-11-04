@@ -1,57 +1,83 @@
-# local_manifests — chopin + ares (MT6893) LineageOS 23.2
+# chopin / rn10pro / ares — pinned LineageOS 24 snapshot
 
-Local manifest to reproduce the chopin (POCO X3 GT / Redmi Note 10 Pro) and
-ares (Redmi K40 Gaming) MT6893 LineageOS 23.2 tree on a clean build server.
+This branch publishes the 2026-11-04 Android 17 / LineageOS 24 source snapshot.
+The tested device is **chopin** (POCO X3 GT / Redmi Note 10 Pro China, MT6893),
+not the unrelated global Redmi Note 10 Pro (`sweet`). ares hardware is not yet
+validated on LOS24. This remains a bring-up snapshot, not a fully qualified release.
 
-## Pull and build (fresh server)
+## Reproduce the tested source
+
+Use an empty Linux working directory and a recent Repo launcher, Git, Git LFS,
+Python 3, OpenSSL and the standard LineageOS host build dependencies. The build
+host used 128 GB RAM, 16 parallel jobs and a 20 GB ccache; allow ample disk space.
 
 ```bash
-# 1. Init the LineageOS base (lineage-23.2, with Git LFS for webview.apk)
-repo init -u https://github.com/LineageOS/android.git -b lineage-23.2 --git-lfs
-
-# 2. Drop in this manifest
-git clone https://github.com/seriaTvT/local_manifests -b lineage-23.2 .repo/local_manifests
-
-# 3. Sync everything (base + the projects listed in mt6893.xml)
-repo sync -c -j"$(nproc)" --no-clone-bundle
-
-# 4. Apply local patches to upstream-managed repos (RefBase perf fix,
-#    frameworks/av codec2 revert). REQUIRED after every sync.
-./patches/apply-patches.sh
-
-# 5. Build (userdebug dev build shown; see variants below)
-source build/envsetup.sh
-lunch lineage_chopin-bp4a-userdebug     # or lineage_ares-bp4a-userdebug
-mka bacon                                # -> out/target/product/<device>/lineage-*.zip
+mkdir los24 && cd los24
+git lfs install
+repo init -u https://github.com/seriaTvT/local_manifests -b lineage-24.0 --repo-rev=v2.71 --git-lfs
+repo sync -c -j8 --fail-fast
+bash patches/apply-patches.sh
+bash patches/apply-patches.sh --check
 ```
 
-Lunch variants: `lineage_ares-bp4a-userdebug`, and the signed release products
-`lineage_chopin-bp4a-user` / `lineage_chopin_rn10pro-bp4a-user` (see keys note).
+`default.xml` is a **standalone main manifest**, with all 1,255 projects pinned
+to full commits. Do not additionally copy it or mt6893.xml into local_manifests.
+The optional `mt6893.xml` is only a device overlay and does not pin the full
+platform; it is insufficient for reproducing this snapshot by itself.
 
-## Must-know caveats for a clean-room build
+The manifest pins upstream bases for the eight patches; the patch runner verifies
+both patch hashes and final source tree hashes. Device/common, vendor/common and
+kernel changes are published directly on seriaTvT's `lineage-24.0` branches.
+Repo v2.71 is pinned because the Repo cache patch has that exact source baseline.
+No repo sync, patch application or branch switch is needed on the existing build
+server while a build is active. Do not add `--force-sync` to discard local work.
 
-- **Private signing keys are NOT in any repo.** `vendor/lineage-priv/keys/` is
-  untracked by design. `userdebug` builds sign with test-keys and need nothing.
-  The `-user` release products require those 9 key pairs copied into
-  `vendor/lineage-priv/keys/` first — otherwise the build fails at signing.
-- **apply-patches.sh is mandatory, every sync.** `repo sync` resets
-  `system/core` and `frameworks/av` to pristine upstream; re-run the script to
-  re-land the patches on topic branches. It is idempotent.
-- **Git LFS.** `webview.apk` is an LFS object. `--git-lfs` at init handles it; if
-  you hit `failed opening zip`, the pointer wasn't resolved — run `git lfs pull`
-  in the offending repo.
-- **Branch-tracking, not pinned.** Projects track branches (upstream tips move),
-  so a fresh sync gives *latest buildable*, not a byte-identical rebuild. For an
-  exact point-in-time rebuild, snapshot with `repo manifest -r > pinned.xml` and
-  init against that.
-- **Disk/RAM.** The full tree is ~330 GB checked out; a ROM build wants plenty of
-  RAM (reference machine: 12 threads / 46 GB).
+## Signing
 
-## What this manifest carries
+All products, including userdebug, expect a complete certificate directory at
+`vendor/lineage-priv/keys`. **No private key is published.** Supply your own
+existing nine-pair key set, or generate a new one once:
 
-seriaTvT forks: device (chopin/ares/mt6893-common), kernel (`chopin_kvm`, shared),
-vendor blobs (chopin/mt6893-common/ares), AresParts, hardware/xiaomi. Community:
-hardware/mediatek + vendor/mediatek/ims + device/mediatek/sepolicy_vndr. GApps
-(MindTheGapps, baklava) baked in. `frameworks/av` tracks **upstream** LineageOS —
-its former fork was a single codec2 revert, now in `android_patches`.
-Full build/signing/flashing detail: REPRODUCE.md / PORT-LOG.md in the LOS-dev tree.
+```bash
+bash .repo/manifests/generate-keys.sh vendor/lineage-priv/keys
+```
+
+Keep these keys for your subsequent updates. Eight distinct identities are
+required (including distinct NFC/platform keys); testkey copies releasekey.
+Bluetooth's signing certificate and SELinux mapping use the same directory.
+An independently signed build cannot be byte-identical to seriaTvT's signed OTA
+and is not a seamless replacement for its update-signing identity.
+
+## Build
+
+```bash
+export OUT_DIR=out
+export SOONG_INCREMENTAL_ANALYSIS=false
+export SOONG_GOMEMLIMIT=80GiB
+ulimit -n 65536
+source build/envsetup.sh
+lunch lineage_chopin_rn10pro-cp2a-user
+m -j16 bacon
+```
+
+This selects Redmi Note 10 Pro branding and the stock CN fingerprint, user build,
+release signing and included GApps. Use `lineage_chopin-cp2a-userdebug` for the
+POCO bring-up configuration. Both target the same chopin output directory; build
+sequentially and archive artifacts before changing products. The n10p user build
+was running when this branch was prepared; source parity does not imply that
+its final package has already passed user-build validation.
+
+## Scope and known limits
+
+The source includes first-boot ION/power/thermal integration, media policy,
+Codec2 Fence ABI repair, native Zygote capability fallback, ARM64 membarrier
+sync-core, legacy process reclaim and freezer capability gating. On the tested
+chopin userdebug build: boot/enforcing, Chrome/search/application starts, memory
+integrity/reclaim, cross-CPU JIT tests, media and HDR interaction regressions pass.
+Hotspot/VPN/public IPv6/CLAT and longer daily-use stress remain to be verified.
+Complete Binder freezer and modern reclaim syscalls are not backported.
+
+No new platform forks are required. Small upstream/platform/tool patches live in
+[android_patches](https://github.com/seriaTvT/android_patches/tree/lineage-24.0),
+including hardware/mediatek's small namespace change. The existing
+`seriaTvT/android_frameworks_av` fork is not required by this snapshot.

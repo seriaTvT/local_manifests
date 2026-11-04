@@ -1,76 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  chopin (POCO X3 GT / Redmi Note 10 Pro) + ares (Redmi K40 Gaming) MT6893
-  LineageOS 23.2 local manifest. Lists every project added on top of the
-  stock lineage-23.2 manifest.
-
-  Clone this repo into .repo/local_manifests/ of a LineageOS lineage-23.2
-  checkout, repo sync, then run patches/apply-patches.sh before building.
-  The full pull-and-build procedure (exact repo init, sync and lunch
-  commands) is in README.md; per-project rationale is in PORT-LOG.md.
-
-  All projects below are pushed to their tracked remote/branch, so a fresh
-  sync reproduces the built-and-tested tree.
--->
+<?xml version='1.0' encoding='utf-8'?>
 <manifest>
   <remote name="seriatvt" fetch="https://github.com/seriaTvT" />
   <remote name="mt6893-dev" fetch="https://github.com/xiaomi-mt6893-dev" />
   <remote name="mt6899-dev" fetch="https://github.com/xiaomi-mt6899-dev" />
   <remote name="los-gh" fetch="https://github.com/LineageOS" />
   <remote name="gitlab" fetch="https://gitlab.com" />
-
-  <!-- device trees (both devices; mt6893-common is shared) -->
-  <project path="device/xiaomi/chopin" name="device_xiaomi_chopin" remote="seriatvt" revision="lineage-23.2" />
-  <project path="device/xiaomi/ares" name="device_xiaomi_ares" remote="seriatvt" revision="lineage-23.2" />
-  <project path="device/xiaomi/mt6893-common" name="device_xiaomi_mt6893-common" remote="seriatvt" revision="lineage-23.2" />
-
-  <!-- kernel: chopin_kvm (= msdc1 disable c82cf72 + XM_THERM cpu_limits fix
-       3b2c21ee). OC branches retired 2026-07-06: MCUPM firmware is fuse-gated
-       at 2600MHz on the B cluster, table OC parks the PLL on a ~2GHz backup
-       mux (see PORT-LOG); chopin_kvm_oc / chopin_kvm_oc30 kept for reference
-       only. (KSU is not in this branch.)
-       SHARED with ares since 7d6d2728 (2026-07-11: ares_defconfig adds
-       BBR2-as-default + LRU_GEN + zstd/lz4hc) - one branch serves both
-       devices, TARGET_KERNEL_CONFIG picks the defconfig. -->
-  <project path="kernel/xiaomi/mt6893" name="kernel_mt6893" remote="seriatvt" revision="chopin_kvm" />
-
-  <!-- vendor blobs (mt6893-common shared; per-device chopin/ares carry the deltas) -->
-  <project path="vendor/xiaomi/chopin" name="vendor_xiaomi_chopin" remote="seriatvt" revision="16.0" />
-  <project path="vendor/xiaomi/mt6893-common" name="vendor_xiaomi_mt6893-common" remote="seriatvt" revision="lineage-22.2" />
-  <!-- ares vendor: the seriaTvT lineage-23.2 branch (563/564 blobs + 17/17
-       firmware vs the 23.2 spec) adds the audio HAL fixup re-patch +
-       thermald-devices.conf on top of lineage-22.2 (see PORT-LOG 2026-07-12).
-       NOT wired: xiaomi-mt6893-dev/android_vendor_xiaomi_ares - that is the
-       retired LOS 20/21-era vendor repo, superseded by this one. -->
-  <project path="vendor/xiaomi/ares" name="vendor_xiaomi_ares" remote="seriatvt" revision="lineage-23.2" />
-
-  <!-- AresParts (org.lineageos.settings.ares): triggers + RGB LED + vibration
-       strength, ares-only via device/xiaomi/ares device.mk (chopin lacks the
-       HW). Replaced the legacy XiaomiParts (Parts-ares fork) at M5. -->
-  <project path="packages/apps/AresParts" name="android_packages_apps_AresParts" remote="seriatvt" revision="lineage-23.2" />
-
-  <!-- community hardware repos: lineage-23.0 is their latest; carry mt6893-only
-       patches (MTK BT/WiFi HALs, MITEE FPC), do not swap for LineageOS upstream.
-       hardware/xiaomi tracks the seriaTvT fork (= mt6893-dev + megvii-to-compat
-       fix 948c66e, needed to coexist with hardware/lineage/compat on 23.2) -->
-  <project path="hardware/mediatek" name="hardware_mediatek" remote="mt6893-dev" revision="lineage-23.0" />
-  <project path="hardware/xiaomi" name="hardware_xiaomi" remote="seriatvt" revision="lineage-23.0" />
-
-  <!-- platform dependencies not in the default manifest -->
-  <project path="device/mediatek/sepolicy_vndr" name="android_device_mediatek_sepolicy_vndr" remote="los-gh" revision="lineage-23.2" />
-  <project path="vendor/mediatek/ims" name="android_vendor_mediatek_ims" remote="mt6899-dev" revision="lineage-23.2" />
-
-  <!-- GApps baked into the ROM (replaces sideload: user-build recovery hides
-       the unverified-install path and Virtual A/B drops recovery sideload
-       writes to /product). baklava = Android 16. Inherited from
-       lineage_chopin.mk (arm64/arm64-vendor.mk). -->
-  <project path="vendor/gapps" name="MindTheGapps/vendor_gapps" remote="gitlab" revision="baklava" />
-
-  <!-- Local patches to upstream-managed AOSP/LineageOS repos, applied post-sync
-       by patches/apply-patches.sh. Replaces the former frameworks/av fork,
-       which was a single revert ("codec2: queue empty work hack"), now carried
-       as patches/frameworks/av/*.patch. frameworks/av therefore tracks upstream
-       LineageOS again (no remove-project override) — see PORT-LOG 2026-07-23.
-       The Y16 camera bypass has since landed upstream. -->
-  <project path="patches" name="android_patches" remote="seriatvt" revision="lineage-23.2" />
+  <project path="device/xiaomi/chopin" name="device_xiaomi_chopin" remote="seriatvt" revision="81e876a97647623661f6d0ed5aab6256cb54789b" upstream="refs/heads/lineage-23.2" />
+  <project path="device/xiaomi/ares" name="device_xiaomi_ares" remote="seriatvt" revision="ceac8a5ff8006af6dd6f1cc2a03acbe1e9f10e23" upstream="refs/heads/lineage-23.2" />
+  <project path="device/xiaomi/mt6893-common" name="device_xiaomi_mt6893-common" remote="seriatvt" revision="6b20488c2090c92b6198630798f1d8cb550b6ba2" upstream="refs/heads/lineage-24.0" />
+  <project path="kernel/xiaomi/mt6893" name="kernel_mt6893" remote="seriatvt" revision="0f7261a9a61bb7b27d46730589c61096bd3ea1c7" upstream="refs/heads/lineage-24.0" />
+  <project path="vendor/xiaomi/chopin" name="vendor_xiaomi_chopin" remote="seriatvt" revision="ea095bec0c3f0ce4ae734663d22c24946c6283ed" upstream="refs/heads/16.0" />
+  <project path="vendor/xiaomi/mt6893-common" name="vendor_xiaomi_mt6893-common" remote="seriatvt" revision="fe0d6b1cd0b737eb1a604f503173ed5265b1f6ac" upstream="refs/heads/lineage-24.0" />
+  <project path="vendor/xiaomi/ares" name="vendor_xiaomi_ares" remote="seriatvt" revision="c872b56be5df5a9144543ec1a7d8c1e05b0ccd47" upstream="refs/heads/lineage-23.2" />
+  <project path="packages/apps/AresParts" name="android_packages_apps_AresParts" remote="seriatvt" revision="405cc2687580b140d71de5389a9ac7d259a2c1d8" upstream="refs/heads/lineage-23.2" />
+  <project path="hardware/mediatek" name="hardware_mediatek" remote="mt6893-dev" revision="e7585841a644f23a76de1aae8f42b21ec6ae5645" upstream="refs/heads/lineage-23.0" />
+  <project path="hardware/xiaomi" name="hardware_xiaomi" remote="seriatvt" revision="948c66e027b280656a9a1aed983027df74844a03" upstream="refs/heads/lineage-23.0" />
+  <project path="device/mediatek/sepolicy_vndr" name="android_device_mediatek_sepolicy_vndr" remote="los-gh" revision="lineage-24.0" />
+  <project path="vendor/mediatek/ims" name="android_vendor_mediatek_ims" remote="mt6899-dev" revision="06c462f1dfc2bb62e70e1d827b14bb364dc97857" upstream="refs/heads/lineage-23.2" />
+  <project path="vendor/gapps" name="MindTheGapps/vendor_gapps" remote="gitlab" revision="cinnamonbun" />
+  <project path="patches" name="android_patches" remote="seriatvt" revision="c916a425814493958911585ebab9b3b686280377" upstream="refs/heads/lineage-24.0" />
 </manifest>
