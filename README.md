@@ -1,4 +1,4 @@
-# chopin / rn10pro / ares — pinned LineageOS 24 snapshot
+# chopin / ares — pinned LineageOS 24 snapshot
 
 This branch publishes the 2026-11-04 Android 17 / LineageOS 24 source snapshot.
 The tested device is **chopin** (POCO X3 GT / Redmi Note 10 Pro China, MT6893),
