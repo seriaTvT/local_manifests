@@ -8,14 +8,14 @@ validated on LOS24. This remains a bring-up snapshot, not a fully qualified rele
 ## Reproduce the tested source
 
 Use an empty Linux working directory and a recent Repo launcher, Git, Git LFS,
-Python 3, OpenSSL and the standard LineageOS host build dependencies. The build
-host used 128 GB RAM, 16 parallel jobs and a 20 GB ccache; allow ample disk space.
+Python 3, OpenSSL and the standard LineageOS host build dependencies.
+Allow sufficient disk space for the source and build outputs.
 
 ```bash
 mkdir los24 && cd los24
 git lfs install
 repo init -u https://github.com/seriaTvT/local_manifests -b lineage-24.0 --repo-rev=v2.71 --git-lfs
-repo sync -c -j8 --fail-fast
+repo sync -c --fail-fast
 bash patches/apply-patches.sh
 bash patches/apply-patches.sh --check
 ```
@@ -27,7 +27,9 @@ platform; it is insufficient for reproducing this snapshot by itself.
 
 The manifest pins upstream bases for the eight patches; the patch runner verifies
 both patch hashes and final source tree hashes. Device/common, vendor/common and
-kernel changes are published directly on seriaTvT's `lineage-24.0` branches.
+kernel changes are published directly in seriaTvT repositories. Device/common
+and vendor/common use `lineage-24.0`; the kernel upstream is `main`. The manifest
+retains the tested commit pins.
 Repo v2.71 is pinned because the Repo cache patch has that exact source baseline.
 No repo sync, patch application or branch switch is needed on the existing build
 server while a build is active. Do not add `--force-sync` to discard local work.
@@ -53,11 +55,9 @@ and is not a seamless replacement for its update-signing identity.
 ```bash
 export OUT_DIR=out
 export SOONG_INCREMENTAL_ANALYSIS=false
-export SOONG_GOMEMLIMIT=80GiB
-ulimit -n 65536
 source build/envsetup.sh
 lunch lineage_chopin_rn10pro-cp2a-user
-m -j16 bacon
+m bacon
 ```
 
 This selects Redmi Note 10 Pro branding and the stock CN fingerprint, user build,
