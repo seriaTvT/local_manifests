@@ -9,6 +9,11 @@ an existing checkout's local_manifests directory. The complete source snapshot
 is pinned by commit, including the matching compatibility patch repository.
 Existing LineageOS branches are independent of this snapshot.
 
+For upstream branch tracking, use the separate
+[`pixelos-17-tracking` branch](https://github.com/seriaTvT/local_manifests/tree/pixelos-17-tracking).
+This fixed snapshot retains its tested kernel commit; the kernel's upstream
+branch metadata now points to `main`.
+
 ## Fetch and prepare
 
 Use a Linux Android build environment with Git, Git LFS, Repo, Python 3,
